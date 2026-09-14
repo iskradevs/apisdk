@@ -1,0 +1,2226 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "chat.completed",
+      "operation": "chat.create",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "request": {
+        "message": "Составь краткий план.",
+        "conversation_id": "11111111-1111-4111-8111-111111111111",
+        "instructions": "Ответь кратко.",
+        "iskra_exec": {
+          "complexity": "normal",
+          "skills": null
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "message_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+          "status": "completed",
+          "answer": "Готово.",
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 3
+          },
+          "expires_at": "2026-09-14T13:00:00Z",
+          "files": [
+            {
+              "name": "notes/answer.md",
+              "download_url": "/api/v1/chat/11111111-1111-4111-8111-111111111111/files/notes/answer.md"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "chat.emptySkills",
+      "operation": "chat.create",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "request": {
+        "message": "Привет",
+        "iskra_exec": {
+          "skills": []
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "message_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+          "status": "completed",
+          "answer": "Готово.",
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 3
+          },
+          "expires_at": "2026-09-14T13:00:00Z"
+        }
+      },
+      "notes": "Ручной пустой набор допустим в профиле без mandatory bundles."
+    },
+    {
+      "id": "chat.structuredOutput",
+      "operation": "chat.create",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "request": {
+        "message": "Готово?",
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "type": "object",
+            "properties": {
+              "ready": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "ready"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "message_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+          "status": "completed",
+          "answer": "Готово.",
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 3
+          },
+          "expires_at": "2026-09-14T13:00:00Z",
+          "files": [
+            {
+              "name": "notes/answer.md",
+              "download_url": "/api/v1/chat/11111111-1111-4111-8111-111111111111/files/notes/answer.md"
+            }
+          ],
+          "output": {
+            "ready": true
+          }
+        }
+      }
+    },
+    {
+      "id": "chat.interactionRequired",
+      "operation": "chat.create",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "request": {
+        "message": "Подготовь материал."
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "status": "interaction_required",
+          "usage": {
+            "input_tokens": 8,
+            "output_tokens": 2
+          },
+          "expires_at": "2026-09-14T13:00:00Z",
+          "interaction": {
+            "tool_call_id": "fixture-call",
+            "inputs": [
+              {
+                "name": "topic",
+                "label": "Тема",
+                "type": "text",
+                "required": true
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "chat.confirmationWithoutInputs",
+      "operation": "chat.create",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "request": {
+        "message": "Выполни действие с подтверждением."
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "status": "interaction_required",
+          "usage": {
+            "input_tokens": 8,
+            "output_tokens": 2
+          },
+          "expires_at": "2026-09-14T13:00:00Z",
+          "interaction": {
+            "tool_call_id": "fixture-confirmation",
+            "inputs": []
+          }
+        }
+      },
+      "notes": "Подтверждение без полей требует веб-интерфейса; policy.inputs не выражает согласие."
+    },
+    {
+      "id": "chat.structuredOutputFailed",
+      "operation": "chat.create",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "request": {
+        "message": "Составь план.",
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "type": "object"
+          }
+        }
+      },
+      "response": {
+        "status": 422,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "structured_output_failed",
+            "message": "Не удалось привести ответ к схеме."
+          },
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "answer": "Частичный результат."
+        }
+      }
+    },
+    {
+      "id": "chat.deleted",
+      "operation": "chat.delete",
+      "method": "DELETE",
+      "path": "/api/v1/chat/11111111-1111-4111-8111-111111111111",
+      "response": {
+        "status": 204,
+        "headers": {},
+        "body": null
+      }
+    },
+    {
+      "id": "files.uploaded",
+      "operation": "files.upload",
+      "method": "POST",
+      "path": "/api/v1/chat/files",
+      "request": {
+        "multipart": {
+          "fields": {
+            "conversation_id": "11111111-1111-4111-8111-111111111111",
+            "ttl_seconds": "3600"
+          },
+          "files": [
+            {
+              "field": "file",
+              "filename": "brief.txt",
+              "content_type": "text/plain",
+              "content": "Hello\n"
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "expires_at": "2026-09-14T13:00:00Z",
+          "files": [
+            {
+              "id": "55555555-5555-4555-8555-555555555555",
+              "name": "brief.txt",
+              "size": 6
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "files.downloaded",
+      "operation": "files.download",
+      "method": "GET",
+      "path": "/api/v1/chat/11111111-1111-4111-8111-111111111111/files/notes/answer.md",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/markdown"
+        },
+        "body": "# Answer\n"
+      }
+    },
+    {
+      "id": "files.invalidFile",
+      "operation": "chat.create",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "request": {
+        "conversation_id": "11111111-1111-4111-8111-111111111111",
+        "message": "Прочитай файл.",
+        "files": [
+          {
+            "id": "55555555-5555-4555-8555-555555555555"
+          }
+        ]
+      },
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "invalid_file",
+            "message": "file not found in conversation"
+          }
+        }
+      },
+      "notes": "Сценарий недоступной версии: другой разговор или версия уже привязана к другому сообщению; SDK сохраняет код."
+    },
+    {
+      "id": "runs.accepted",
+      "operation": "runs.create",
+      "method": "POST",
+      "path": "/api/v1/runs",
+      "request": {
+        "conversation_id": "11111111-1111-4111-8111-111111111111",
+        "message": "Прочитай файл.",
+        "files": [
+          {
+            "id": "55555555-5555-4555-8555-555555555555"
+          }
+        ],
+        "policy": {
+          "inputs": {
+            "topic": "План"
+          }
+        }
+      },
+      "request_headers": {
+        "Idempotency-Key": "fixture-run-001"
+      },
+      "response": {
+        "status": 202,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "run_id": "22222222-2222-4222-8222-222222222222",
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "status": "queued",
+          "expires_at": "2026-09-14T12:15:00Z"
+        }
+      },
+      "notes": "expires_at — фиксированный дедлайн прогона; upload.expires_at — TTL разговора."
+    },
+    {
+      "id": "runs.queued",
+      "operation": "runs.get",
+      "method": "GET",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222",
+      "query": {
+        "after": "0"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "run_id": "22222222-2222-4222-8222-222222222222",
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "status": "queued",
+          "created_at": "2026-09-14T12:00:00Z",
+          "started_at": null,
+          "finished_at": null,
+          "result": null,
+          "error": null,
+          "events": [],
+          "next_after": 0
+        }
+      }
+    },
+    {
+      "id": "runs.runningCursorGap",
+      "operation": "runs.get",
+      "method": "GET",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222",
+      "query": {
+        "after": "1"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "run_id": "22222222-2222-4222-8222-222222222222",
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "status": "running",
+          "created_at": "2026-09-14T12:00:00Z",
+          "started_at": "2026-09-14T12:00:00Z",
+          "finished_at": null,
+          "result": null,
+          "error": null,
+          "events": [
+            {
+              "seq": 2,
+              "ts": "2026-09-14T12:00:00Z",
+              "kind": "content",
+              "data": {
+                "len": 12
+              }
+            }
+          ],
+          "next_after": 4
+        }
+      },
+      "notes": "Курсор учитывает пропущенные позиции. Следующий GET after=4, не 2."
+    },
+    {
+      "id": "runs.completed",
+      "operation": "runs.get",
+      "method": "GET",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222",
+      "query": {
+        "after": "4"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "run_id": "22222222-2222-4222-8222-222222222222",
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "status": "completed",
+          "created_at": "2026-09-14T12:00:00Z",
+          "started_at": "2026-09-14T12:00:00Z",
+          "finished_at": "2026-09-14T12:00:02Z",
+          "result": {
+            "conversation_id": "11111111-1111-4111-8111-111111111111",
+            "message_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+            "status": "completed",
+            "answer": "Готово.",
+            "usage": {
+              "input_tokens": 12,
+              "output_tokens": 3
+            },
+            "expires_at": "2026-09-14T13:00:00Z",
+            "files": [
+              {
+                "name": "notes/answer.md",
+                "download_url": "/api/v1/chat/11111111-1111-4111-8111-111111111111/files/notes/answer.md"
+              }
+            ]
+          },
+          "error": null,
+          "events": [],
+          "next_after": 5
+        }
+      }
+    },
+    {
+      "id": "runs.interactionRequired",
+      "operation": "runs.get",
+      "method": "GET",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "run_id": "22222222-2222-4222-8222-222222222222",
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "status": "interaction_required",
+          "created_at": "2026-09-14T12:00:00Z",
+          "started_at": "2026-09-14T12:00:00Z",
+          "finished_at": "2026-09-14T12:00:02Z",
+          "result": {
+            "conversation_id": "11111111-1111-4111-8111-111111111111",
+            "status": "interaction_required",
+            "usage": {
+              "input_tokens": 8,
+              "output_tokens": 2
+            },
+            "expires_at": "2026-09-14T13:00:00Z",
+            "interaction": {
+              "tool_call_id": "fixture-call",
+              "inputs": [
+                {
+                  "name": "topic",
+                  "label": "Тема",
+                  "type": "text",
+                  "required": true
+                }
+              ]
+            }
+          },
+          "error": null,
+          "events": [],
+          "next_after": 0
+        }
+      }
+    },
+    {
+      "id": "runs.failedPartial",
+      "operation": "runs.get",
+      "method": "GET",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "run_id": "22222222-2222-4222-8222-222222222222",
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "status": "failed",
+          "created_at": "2026-09-14T12:00:00Z",
+          "started_at": "2026-09-14T12:00:00Z",
+          "finished_at": "2026-09-14T12:00:02Z",
+          "result": {
+            "answer": "Частичный результат."
+          },
+          "error": {
+            "code": "structured_output_failed",
+            "message": "Не удалось привести ответ к схеме."
+          },
+          "events": [],
+          "next_after": 0
+        }
+      }
+    },
+    {
+      "id": "runs.failedContextChanged",
+      "operation": "runs.get",
+      "method": "GET",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "run_id": "22222222-2222-4222-8222-222222222222",
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "status": "failed",
+          "created_at": "2026-09-14T12:00:00Z",
+          "started_at": null,
+          "finished_at": "2026-09-14T12:00:02Z",
+          "result": null,
+          "error": {
+            "code": "context_changed",
+            "message": "Контекст разговора изменился."
+          },
+          "events": [],
+          "next_after": 0
+        }
+      }
+    },
+    {
+      "id": "runs.failedInterrupted",
+      "operation": "runs.get",
+      "method": "GET",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "run_id": "22222222-2222-4222-8222-222222222222",
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "status": "failed",
+          "created_at": "2026-09-14T12:00:00Z",
+          "started_at": "2026-09-14T12:00:00Z",
+          "finished_at": "2026-09-14T12:00:02Z",
+          "result": null,
+          "error": {
+            "code": "interrupted",
+            "message": "прогон прерван перезапуском сервиса"
+          },
+          "events": [],
+          "next_after": 0
+        }
+      }
+    },
+    {
+      "id": "runs.cancelledStatus",
+      "operation": "runs.get",
+      "method": "GET",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "run_id": "22222222-2222-4222-8222-222222222222",
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "status": "cancelled",
+          "created_at": "2026-09-14T12:00:00Z",
+          "started_at": "2026-09-14T12:00:00Z",
+          "finished_at": "2026-09-14T12:00:02Z",
+          "result": null,
+          "error": null,
+          "events": [],
+          "next_after": 0
+        }
+      }
+    },
+    {
+      "id": "runs.cancelled",
+      "operation": "runs.cancel",
+      "method": "DELETE",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "run_id": "22222222-2222-4222-8222-222222222222",
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "status": "cancelled"
+        }
+      }
+    },
+    {
+      "id": "runs.alreadyFinished",
+      "operation": "runs.cancel",
+      "method": "DELETE",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222",
+      "response": {
+        "status": 409,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "already_finished",
+            "message": "run already finished"
+          }
+        }
+      }
+    },
+    {
+      "id": "runs.rejectInline",
+      "operation": "runs.create",
+      "method": "POST",
+      "path": "/api/v1/runs",
+      "request": {
+        "message": "Прочитай.",
+        "files": [
+          {
+            "name": "brief.txt",
+            "mime": "text/plain",
+            "content_base64": "SGVsbG8K"
+          }
+        ]
+      },
+      "response": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "use_file_upload",
+            "message": "use POST /api/v1/chat/files and pass files[].id"
+          }
+        }
+      }
+    },
+    {
+      "id": "runs.events",
+      "operation": "runs.events",
+      "method": "GET",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222/events",
+      "query": {
+        "after": "2"
+      },
+      "request_headers": {
+        "Accept": "text/event-stream"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "X-Accel-Buffering": "no"
+        },
+        "body": ": keepalive\n\nid: 2\nevent: content\ndata: {\"len\":12}\n\nid: 3\nevent: tool\ndata: {\"name\":\"read_file\"}\n\nid: 4\nevent: completed\ndata: {\"status\":\"completed\"}\n\n"
+      },
+      "expect": {
+        "event_ids": [
+          "2",
+          "3",
+          "4"
+        ],
+        "resume_after": 5
+      }
+    },
+    {
+      "id": "runs.eventsSyntheticTerminal",
+      "operation": "runs.events",
+      "method": "GET",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222/events",
+      "query": {
+        "after": "0"
+      },
+      "request_headers": {
+        "Accept": "text/event-stream"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/event-stream"
+        },
+        "body": "id: -1\nevent: completed\ndata: {\"status\":\"completed\"}\n\n"
+      },
+      "expect": {
+        "event_ids": [
+          "-1"
+        ],
+        "resume_after": 0
+      }
+    },
+    {
+      "id": "runs.eventsResumeHeader",
+      "operation": "runs.events",
+      "method": "GET",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222/events",
+      "request_headers": {
+        "Accept": "text/event-stream",
+        "Last-Event-ID": "3"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/event-stream"
+        },
+        "body": "id: 4\nevent: completed\ndata: {\"status\":\"completed\"}\n\n"
+      },
+      "expect": {
+        "event_ids": [
+          "4"
+        ],
+        "resume_after": 5
+      }
+    },
+    {
+      "id": "skills.catalog",
+      "operation": "skills.list",
+      "method": "GET",
+      "path": "/api/v1/skills",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "skills": [
+            {
+              "bundle": "example-required",
+              "name": "example_required",
+              "title": "Пример required",
+              "description": "Синтетический навык для проверки wire-контракта.",
+              "version": "1.0.0",
+              "mode": "explicit",
+              "available": true,
+              "requires_setup": false,
+              "mandatory": true,
+              "setup_state": "ready"
+            },
+            {
+              "bundle": "example-configured",
+              "name": "example_configured",
+              "title": "Пример configured",
+              "description": "Синтетический навык для проверки wire-контракта.",
+              "version": "1.0.0",
+              "mode": "explicit",
+              "available": true,
+              "requires_setup": true,
+              "mandatory": false,
+              "setup_state": "ready"
+            },
+            {
+              "bundle": "example-unconfigured",
+              "name": "example_unconfigured",
+              "title": "Пример unconfigured",
+              "description": "Синтетический навык для проверки wire-контракта.",
+              "version": "1.0.0",
+              "mode": "explicit",
+              "available": false,
+              "requires_setup": true,
+              "mandatory": false,
+              "setup_state": "missing"
+            },
+            {
+              "bundle": "example-invalid",
+              "name": "example_invalid",
+              "title": "Пример invalid",
+              "description": "Синтетический навык для проверки wire-контракта.",
+              "version": "1.0.0",
+              "mode": "explicit",
+              "available": false,
+              "requires_setup": true,
+              "mandatory": false,
+              "setup_state": "invalid"
+            },
+            {
+              "bundle": "example-unknown",
+              "name": "example_unknown",
+              "title": "Пример unknown",
+              "description": "Синтетический навык для проверки wire-контракта.",
+              "version": "1.0.0",
+              "mode": "explicit",
+              "available": false,
+              "requires_setup": true,
+              "mandatory": false,
+              "setup_state": "unknown"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "specialists.catalog",
+      "operation": "specialists.list",
+      "method": "GET",
+      "path": "/api/v1/specialists",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "specialists": [
+            {
+              "id": "general",
+              "title": "Общий",
+              "description": "Общий режим.",
+              "icon": "sparkles"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "execPlan.defaults",
+      "operation": "execPlan.defaults",
+      "method": "GET",
+      "path": "/api/v1/exec-plan/defaults",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "plan": {
+            "model": {
+              "source": "auto",
+              "complexity": "auto",
+              "antonym_enabled": false,
+              "antonym_locked": false
+            },
+            "specialist": {
+              "source": "auto",
+              "id": "general",
+              "title": "Общий",
+              "icon": "sparkles"
+            },
+            "skills": {
+              "source": "auto",
+              "skills": [
+                {
+                  "bundle": "example-required",
+                  "mandatory": true,
+                  "ephemeral": false
+                }
+              ]
+            },
+            "memory": {
+              "folder_ids": []
+            },
+            "context": {
+              "tokens": 0,
+              "limit": 0
+            },
+            "version": 0
+          },
+          "pins": {
+            "model": null,
+            "skills": null,
+            "specialist": null
+          },
+          "version": 0,
+          "options": {
+            "complexity_levels": [
+              {
+                "level": "simple",
+                "coeff": 0,
+                "coeff_known": false,
+                "vision_ok": true,
+                "auto": true
+              },
+              {
+                "level": "normal",
+                "coeff": 0,
+                "coeff_known": false,
+                "vision_ok": true,
+                "auto": true
+              },
+              {
+                "level": "hard",
+                "coeff": 0,
+                "coeff_known": false,
+                "vision_ok": true,
+                "auto": false
+              }
+            ],
+            "router_enabled": true,
+            "antonym": "editable",
+            "mandatory_bundles": [
+              "example-required"
+            ],
+            "memory": {
+              "folder_ids": []
+            },
+            "specialists": [
+              {
+                "id": "general",
+                "title": "Общий",
+                "description": "Общий режим.",
+                "icon": "sparkles"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "conversations.createdEmpty",
+      "operation": "conversations.create",
+      "method": "POST",
+      "path": "/api/v1/conversations",
+      "request": {},
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "workspace": {
+            "name": "Файлы этого чата",
+            "access_mode": "write",
+            "can_choose": true
+          },
+          "references": [],
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "expires_at": "2026-09-14T13:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "conversations.createdWithMemory",
+      "operation": "conversations.create",
+      "method": "POST",
+      "path": "/api/v1/conversations",
+      "request": {
+        "ttl_seconds": 3600,
+        "workspace_directory_id": "33333333-3333-4333-8333-333333333333",
+        "memory_refs": [
+          {
+            "locator": {
+              "directory_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+              "folder_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+            },
+            "access_mode": "read"
+          }
+        ]
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "workspace": {
+            "directory_id": "33333333-3333-4333-8333-333333333333",
+            "name": "Материалы",
+            "access_mode": "write",
+            "adopted": true,
+            "can_release": true
+          },
+          "references": [
+            {
+              "id": "66666666-6666-4666-8666-666666666666",
+              "origin": "chat",
+              "inherited": false,
+              "locator": {
+                "directory_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                "folder_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+              },
+              "name": "input",
+              "root_name": "Исходники",
+              "path": "input",
+              "access_mode": "read",
+              "can_write": true,
+              "can_remove": true,
+              "can_change_mode": true,
+              "resource_denied": false
+            }
+          ],
+          "conversation_id": "11111111-1111-4111-8111-111111111111",
+          "expires_at": "2026-09-14T13:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "conversations.context",
+      "operation": "conversations.context",
+      "method": "GET",
+      "path": "/api/v1/chat/11111111-1111-4111-8111-111111111111/context",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "workspace": {
+            "directory_id": "33333333-3333-4333-8333-333333333333",
+            "name": "Материалы",
+            "access_mode": "write",
+            "adopted": true,
+            "can_release": true
+          },
+          "references": [
+            {
+              "id": "66666666-6666-4666-8666-666666666666",
+              "origin": "chat",
+              "inherited": false,
+              "locator": {
+                "directory_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                "folder_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+              },
+              "name": "input",
+              "root_name": "Исходники",
+              "path": "input",
+              "access_mode": "read",
+              "can_write": true,
+              "can_remove": true,
+              "can_change_mode": true,
+              "resource_denied": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "conversations.contextEmpty",
+      "operation": "conversations.context",
+      "method": "GET",
+      "path": "/api/v1/chat/11111111-1111-4111-8111-111111111111/context",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "workspace": {
+            "name": "Файлы этого чата",
+            "access_mode": "write",
+            "can_choose": true
+          },
+          "references": []
+        }
+      },
+      "notes": "Без workspace directory_id опущен; workspace — объект, references — пустой массив, не null."
+    },
+    {
+      "id": "conversations.contextCollection",
+      "operation": "conversations.context",
+      "method": "GET",
+      "path": "/api/v1/chat/11111111-1111-4111-8111-111111111111/context",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "workspace": {
+            "name": "Файлы этого чата",
+            "access_mode": "write",
+            "can_choose": true
+          },
+          "references": [
+            {
+              "id": "66666666-6666-4666-8666-666666666666",
+              "origin": "chat",
+              "inherited": false,
+              "locator": {
+                "directory_id": ""
+              },
+              "name": "Коллекция",
+              "root_name": "Коллекция",
+              "access_mode": "read",
+              "can_write": true,
+              "can_remove": true,
+              "can_change_mode": true,
+              "resource_denied": false,
+              "collection_id": "77777777-7777-4777-8777-777777777777"
+            }
+          ]
+        }
+      },
+      "notes": "Collection reference имеет collection_id и нулевой locator.directory_id, не выдуманный folder ID."
+    },
+    {
+      "id": "conversations.workspaceSet",
+      "operation": "conversations.setWorkspace",
+      "method": "PUT",
+      "path": "/api/v1/chat/11111111-1111-4111-8111-111111111111/workspace",
+      "request": {
+        "directory_id": "33333333-3333-4333-8333-333333333333"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "workspace": {
+            "directory_id": "33333333-3333-4333-8333-333333333333",
+            "name": "Материалы",
+            "access_mode": "write",
+            "adopted": true,
+            "can_release": true
+          },
+          "references": []
+        }
+      }
+    },
+    {
+      "id": "conversations.workspaceCleared",
+      "operation": "conversations.clearWorkspace",
+      "method": "DELETE",
+      "path": "/api/v1/chat/11111111-1111-4111-8111-111111111111/workspace",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "workspace": {
+            "name": "Файлы этого чата",
+            "access_mode": "write",
+            "can_choose": true
+          },
+          "references": []
+        }
+      }
+    },
+    {
+      "id": "conversations.referenceAdded",
+      "operation": "conversations.addMemoryRef",
+      "method": "POST",
+      "path": "/api/v1/chat/11111111-1111-4111-8111-111111111111/memory-refs",
+      "request": {
+        "locator": {
+          "directory_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          "folder_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+        },
+        "access_mode": "read"
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "workspace": {
+            "directory_id": "33333333-3333-4333-8333-333333333333",
+            "name": "Материалы",
+            "access_mode": "write",
+            "adopted": true,
+            "can_release": true
+          },
+          "references": [
+            {
+              "id": "66666666-6666-4666-8666-666666666666",
+              "origin": "chat",
+              "inherited": false,
+              "locator": {
+                "directory_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                "folder_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+              },
+              "name": "input",
+              "root_name": "Исходники",
+              "path": "input",
+              "access_mode": "read",
+              "can_write": true,
+              "can_remove": true,
+              "can_change_mode": true,
+              "resource_denied": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "conversations.referenceUpdated",
+      "operation": "conversations.updateMemoryRef",
+      "method": "PATCH",
+      "path": "/api/v1/chat/11111111-1111-4111-8111-111111111111/memory-refs/66666666-6666-4666-8666-666666666666",
+      "request": {
+        "access_mode": "write"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "workspace": {
+            "directory_id": "33333333-3333-4333-8333-333333333333",
+            "name": "Материалы",
+            "access_mode": "write",
+            "adopted": true,
+            "can_release": true
+          },
+          "references": [
+            {
+              "id": "66666666-6666-4666-8666-666666666666",
+              "origin": "chat",
+              "inherited": false,
+              "locator": {
+                "directory_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                "folder_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+              },
+              "name": "input",
+              "root_name": "Исходники",
+              "path": "input",
+              "access_mode": "write",
+              "can_write": true,
+              "can_remove": true,
+              "can_change_mode": true,
+              "resource_denied": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "conversations.referenceDeleted",
+      "operation": "conversations.deleteMemoryRef",
+      "method": "DELETE",
+      "path": "/api/v1/chat/11111111-1111-4111-8111-111111111111/memory-refs/66666666-6666-4666-8666-666666666666",
+      "response": {
+        "status": 204,
+        "headers": {},
+        "body": null
+      }
+    },
+    {
+      "id": "memory.roots",
+      "operation": "memory.browse",
+      "method": "GET",
+      "path": "/api/v1/memory/browse",
+      "query": {
+        "sort": "name",
+        "direction": "asc",
+        "limit": "20",
+        "origin": "personal"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "entries": [
+            {
+              "locator": {
+                "directory_id": "33333333-3333-4333-8333-333333333333",
+                "target_kind": "folder"
+              },
+              "name": "Материалы",
+              "path": "",
+              "root_name": "Материалы",
+              "origin": "personal",
+              "category": "personal",
+              "permission": "admin",
+              "tree_revision": 1,
+              "processing_revision": 0,
+              "created_at": "2026-09-14T12:00:00Z",
+              "updated_at": "2026-09-14T12:00:00Z"
+            }
+          ],
+          "complete": true,
+          "materialization_file_limit": 100
+        }
+      }
+    },
+    {
+      "id": "memory.folder",
+      "operation": "memory.browse",
+      "method": "GET",
+      "path": "/api/v1/memory/browse",
+      "query": {
+        "directory_id": "33333333-3333-4333-8333-333333333333",
+        "folder_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "breadcrumbs": [
+            {
+              "name": "Материалы",
+              "locator": {
+                "directory_id": "33333333-3333-4333-8333-333333333333",
+                "target_kind": "folder"
+              }
+            }
+          ],
+          "entries": [
+            {
+              "locator": {
+                "directory_id": "33333333-3333-4333-8333-333333333333",
+                "target_kind": "file",
+                "file_id": "44444444-4444-4444-8444-444444444444"
+              },
+              "name": "brief.txt",
+              "path": "input/brief.txt",
+              "root_name": "Материалы",
+              "origin": "personal",
+              "category": "personal",
+              "permission": "admin",
+              "tree_revision": 1,
+              "processing_revision": 0,
+              "created_at": "2026-09-14T12:00:00Z",
+              "updated_at": "2026-09-14T12:00:00Z",
+              "mime": "text/plain",
+              "size_bytes": 6,
+              "file_source": "user",
+              "file_status": "uploaded",
+              "current_version_id": "55555555-5555-4555-8555-555555555555"
+            }
+          ],
+          "complete": true,
+          "materialization_file_limit": 100
+        }
+      }
+    },
+    {
+      "id": "memory.empty",
+      "operation": "memory.browse",
+      "method": "GET",
+      "path": "/api/v1/memory/browse",
+      "query": {
+        "q": "Отсутствующее имя",
+        "candidates": "false"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "entries": [],
+          "complete": true,
+          "materialization_file_limit": 100
+        }
+      }
+    },
+    {
+      "id": "memory.collections",
+      "operation": "memory.collections",
+      "method": "GET",
+      "path": "/api/v1/memory/collections",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "collections": [
+            {
+              "id": "77777777-7777-4777-8777-777777777777",
+              "name": "Коллекция",
+              "member_count": 1,
+              "origin": "user",
+              "autofill_mode": "manual"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "memory.collectionMembers",
+      "operation": "memory.collectionMembers",
+      "method": "GET",
+      "path": "/api/v1/memory/collections/77777777-7777-4777-8777-777777777777/members",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "members": [
+            {
+              "directory_id": "33333333-3333-4333-8333-333333333333",
+              "folder_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+              "name": "input",
+              "root_name": "Материалы",
+              "path": "input",
+              "shared": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "memory.rootCreated",
+      "operation": "memory.createRoot",
+      "method": "POST",
+      "path": "/api/v1/memory/resources/roots",
+      "request": {
+        "name": "Материалы"
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": "33333333-3333-4333-8333-333333333333",
+          "name": "Материалы",
+          "type": "virtual",
+          "created_by": "99999999-9999-4999-8999-999999999999",
+          "owner_kind": "user",
+          "tree_revision": 0,
+          "processing_revision": 0,
+          "created_at": "2026-09-14T12:00:00Z",
+          "updated_at": "2026-09-14T12:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "memory.folderCreated",
+      "operation": "memory.createFolder",
+      "method": "POST",
+      "path": "/api/v1/memory/resources/folders",
+      "request": {
+        "directory_id": "33333333-3333-4333-8333-333333333333",
+        "path": "input"
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+          "directory_id": "33333333-3333-4333-8333-333333333333",
+          "path": "input",
+          "created_by": "99999999-9999-4999-8999-999999999999",
+          "created_at": "2026-09-14T12:00:00Z",
+          "updated_at": "2026-09-14T12:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "memory.uploaded",
+      "operation": "memory.upload",
+      "method": "POST",
+      "path": "/api/v1/memory/resources/files",
+      "request": {
+        "multipart": {
+          "fields": {
+            "directory_id": "33333333-3333-4333-8333-333333333333",
+            "path": "input/brief.txt",
+            "conflict_policy": "create"
+          },
+          "files": [
+            {
+              "field": "file",
+              "filename": "brief.txt",
+              "content_type": "text/plain",
+              "content": "Hello\n"
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "file": {
+            "id": "44444444-4444-4444-8444-444444444444",
+            "directory_id": "33333333-3333-4333-8333-333333333333",
+            "path": "input/brief.txt",
+            "mime": "text/plain",
+            "size_bytes": 6,
+            "current_version_id": "55555555-5555-4555-8555-555555555555",
+            "source": "user",
+            "status": "uploaded",
+            "created_by": "99999999-9999-4999-8999-999999999999",
+            "created_at": "2026-09-14T12:00:00Z",
+            "updated_at": "2026-09-14T12:00:00Z"
+          },
+          "version": {
+            "id": "55555555-5555-4555-8555-555555555555",
+            "file_id": "44444444-4444-4444-8444-444444444444",
+            "version_number": 1,
+            "s3_version_id": "",
+            "size_bytes": 6,
+            "created_by": "99999999-9999-4999-8999-999999999999",
+            "created_at": "2026-09-14T12:00:00Z"
+          }
+        }
+      }
+    },
+    {
+      "id": "memory.downloaded",
+      "operation": "memory.download",
+      "method": "GET",
+      "path": "/api/v1/memory/resources/files/44444444-4444-4444-8444-444444444444/content",
+      "query": {
+        "directory_id": "33333333-3333-4333-8333-333333333333",
+        "download": "1"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/plain",
+          "Content-Disposition": "attachment; filename=\"brief.txt\"",
+          "X-Content-Type-Options": "nosniff"
+        },
+        "body": "Hello\n"
+      }
+    },
+    {
+      "id": "apps.created",
+      "operation": "apps.create",
+      "method": "POST",
+      "path": "/api/v1/apps",
+      "query": {
+        "activate": "true"
+      },
+      "request": {
+        "multipart": {
+          "fields": {
+            "title": "Пример приложения"
+          },
+          "files": [
+            {
+              "field": "bundle",
+              "filename": "example.tar.gz",
+              "content_type": "application/gzip",
+              "content": "synthetic bundle bytes"
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": "88888888-8888-4888-8888-888888888888",
+          "slug": "example-app",
+          "version": "1.0.0",
+          "state": "ready",
+          "current_version": "1.0.0",
+          "activated": true,
+          "approval_pending": false
+        }
+      },
+      "notes": "Multipart описывает транспорт; тестовый архив не является deployable Apps bundle."
+    },
+    {
+      "id": "apps.versionAccepted",
+      "operation": "apps.publishVersion",
+      "method": "POST",
+      "path": "/api/v1/apps/88888888-8888-4888-8888-888888888888/versions",
+      "query": {
+        "activate": "false"
+      },
+      "request": {
+        "multipart": {
+          "fields": {},
+          "files": [
+            {
+              "field": "bundle",
+              "filename": "example.tar.gz",
+              "content_type": "application/gzip",
+              "content": "synthetic bundle bytes"
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 202,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": "88888888-8888-4888-8888-888888888888",
+          "slug": "example-app",
+          "version": "1.1.0",
+          "state": "probing",
+          "current_version": "1.0.0",
+          "activated": false,
+          "approval_pending": false
+        }
+      }
+    },
+    {
+      "id": "apps.approvalRequired",
+      "operation": "apps.publishVersion",
+      "method": "POST",
+      "path": "/api/v1/apps/88888888-8888-4888-8888-888888888888/versions",
+      "query": {
+        "activate": "true"
+      },
+      "request": {
+        "multipart": {
+          "fields": {},
+          "files": [
+            {
+              "field": "bundle",
+              "filename": "example.tar.gz",
+              "content_type": "application/gzip",
+              "content": "synthetic bundle bytes"
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 409,
+        "headers": {
+          "Content-Type": "application/problem+json",
+          "X-Request-ID": "fixture-request"
+        },
+        "body": {
+          "type": "about:blank",
+          "title": "approval_required",
+          "status": 409,
+          "detail": "",
+          "instance": "urn:request:fixture-request",
+          "code": "approval_required",
+          "action": "contact_admin",
+          "request_id": "fixture-request",
+          "params": {
+            "version": "1.1.0",
+            "current_version": "1.0.0"
+          }
+        }
+      },
+      "notes": "Версия уже опубликована; активация требует действия пользователя. Ошибка не содержит app ID/state; используйте известный app ID и GET с version."
+    },
+    {
+      "id": "apps.publicationPending",
+      "operation": "apps.get",
+      "method": "GET",
+      "path": "/api/v1/apps/88888888-8888-4888-8888-888888888888",
+      "query": {
+        "version": "1.1.0"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": "88888888-8888-4888-8888-888888888888",
+          "slug": "example-app",
+          "title": "Пример приложения",
+          "access": "private",
+          "status": "active",
+          "current_version": "1.0.0",
+          "publication": {
+            "version": "1.1.0",
+            "state": "pending",
+            "activate_on_ready": false
+          }
+        }
+      }
+    },
+    {
+      "id": "apps.publicationReady",
+      "operation": "apps.get",
+      "method": "GET",
+      "path": "/api/v1/apps/88888888-8888-4888-8888-888888888888",
+      "query": {
+        "version": "1.1.0"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": "88888888-8888-4888-8888-888888888888",
+          "slug": "example-app",
+          "title": "Пример приложения",
+          "access": "private",
+          "status": "active",
+          "current_version": "1.0.0",
+          "publication": {
+            "version": "1.1.0",
+            "state": "ready",
+            "activate_on_ready": false,
+            "outcome": "not_requested"
+          }
+        }
+      }
+    },
+    {
+      "id": "apps.publicationApprovalPending",
+      "operation": "apps.get",
+      "method": "GET",
+      "path": "/api/v1/apps/88888888-8888-4888-8888-888888888888",
+      "query": {
+        "version": "1.1.0"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": "88888888-8888-4888-8888-888888888888",
+          "slug": "example-app",
+          "title": "Пример приложения",
+          "access": "public",
+          "status": "active",
+          "current_version": "1.0.0",
+          "publication": {
+            "version": "1.1.0",
+            "state": "ready",
+            "activate_on_ready": true,
+            "outcome": "approval_pending"
+          },
+          "approved_version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "apps.versionRequired",
+      "operation": "apps.get",
+      "method": "GET",
+      "path": "/api/v1/apps/88888888-8888-4888-8888-888888888888",
+      "response": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/problem+json"
+        },
+        "body": {
+          "type": "about:blank",
+          "title": "version_required",
+          "status": 400,
+          "detail": "",
+          "instance": "urn:request:fixture-request",
+          "code": "version_required",
+          "action": "fix_input",
+          "request_id": "fixture-request",
+          "params": {}
+        }
+      }
+    },
+    {
+      "id": "openai.models",
+      "operation": "openai.models",
+      "method": "GET",
+      "path": "/api/openai/v1/models",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "object": "list",
+          "data": [
+            {
+              "id": "iskra",
+              "object": "model",
+              "created": 1784073600,
+              "owned_by": "iskra"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "openai.modelsRawEnabled",
+      "operation": "openai.models",
+      "method": "GET",
+      "path": "/api/openai/v1/models",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "object": "list",
+          "data": [
+            {
+              "id": "iskra-agent",
+              "object": "model",
+              "created": 1784073600,
+              "owned_by": "iskra"
+            },
+            {
+              "id": "iskra-llm",
+              "object": "model",
+              "created": 1784073600,
+              "owned_by": "iskra"
+            },
+            {
+              "id": "iskra-llm-fast",
+              "object": "model",
+              "created": 1784073600,
+              "owned_by": "iskra"
+            },
+            {
+              "id": "iskra-llm-balanced",
+              "object": "model",
+              "created": 1784073600,
+              "owned_by": "iskra"
+            },
+            {
+              "id": "iskra-llm-powerful",
+              "object": "model",
+              "created": 1784073600,
+              "owned_by": "iskra"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "openai.chatCompleted",
+      "operation": "openai.chatCompletions",
+      "method": "POST",
+      "path": "/api/openai/v1/chat/completions",
+      "request": {
+        "model": "iskra",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Привет"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": "chatcmpl-fixture",
+          "object": "chat.completion",
+          "created": 1789387200,
+          "model": "iskra",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "Привет!"
+              },
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 8,
+            "completion_tokens": 2,
+            "total_tokens": 10
+          },
+          "conversation_id": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "id": "openai.chatStream",
+      "operation": "openai.chatCompletions",
+      "method": "POST",
+      "path": "/api/openai/v1/chat/completions",
+      "request": {
+        "model": "iskra",
+        "stream": true,
+        "messages": [
+          {
+            "role": "user",
+            "content": "Привет"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/event-stream"
+        },
+        "body": ": keepalive\n\ndata: {\"id\":\"chatcmpl-fixture\",\"object\":\"chat.completion.chunk\",\"created\":1789387200,\"model\":\"iskra\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-fixture\",\"object\":\"chat.completion.chunk\",\"created\":1789387200,\"model\":\"iskra\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Привет!\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-fixture\",\"object\":\"chat.completion.chunk\",\"created\":1789387200,\"model\":\"iskra\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}],\"conversation_id\":\"11111111-1111-4111-8111-111111111111\"}\n\ndata: [DONE]\n\n"
+      },
+      "expect": {
+        "chunks": [
+          {
+            "id": "chatcmpl-fixture",
+            "object": "chat.completion.chunk",
+            "created": 1789387200,
+            "model": "iskra",
+            "choices": [
+              {
+                "index": 0,
+                "delta": {
+                  "role": "assistant"
+                },
+                "finish_reason": null
+              }
+            ]
+          },
+          {
+            "id": "chatcmpl-fixture",
+            "object": "chat.completion.chunk",
+            "created": 1789387200,
+            "model": "iskra",
+            "choices": [
+              {
+                "index": 0,
+                "delta": {
+                  "content": "Привет!"
+                },
+                "finish_reason": null
+              }
+            ]
+          },
+          {
+            "id": "chatcmpl-fixture",
+            "object": "chat.completion.chunk",
+            "created": 1789387200,
+            "model": "iskra",
+            "choices": [
+              {
+                "index": 0,
+                "delta": {},
+                "finish_reason": "stop"
+              }
+            ],
+            "conversation_id": "11111111-1111-4111-8111-111111111111"
+          }
+        ],
+        "done": true
+      }
+    },
+    {
+      "id": "openai.agentRejectsSchema",
+      "operation": "openai.chatCompletions",
+      "method": "POST",
+      "path": "/api/openai/v1/chat/completions",
+      "request": {
+        "model": "iskra",
+        "messages": [
+          {
+            "role": "user",
+            "content": "JSON"
+          }
+        ],
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "type": "object"
+          }
+        }
+      },
+      "response": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "message": "response_format is not supported (text only)",
+            "type": "invalid_request_error",
+            "code": "invalid_request"
+          }
+        }
+      }
+    },
+    {
+      "id": "openai.rawAcceptsJSONObject",
+      "operation": "openai.chatCompletions",
+      "method": "POST",
+      "path": "/api/openai/v1/chat/completions",
+      "request": {
+        "model": "iskra-llm",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Верни JSON."
+          }
+        ],
+        "response_format": {
+          "type": "json_object"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": "chatcmpl-fixture",
+          "object": "chat.completion",
+          "created": 1789387200,
+          "model": "iskra-llm",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"ready\":true}"
+              },
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 8,
+            "completion_tokens": 2,
+            "total_tokens": 10
+          }
+        }
+      },
+      "notes": "Raw JSON ответ зависит от gateway/provider; в raw ответе нет conversation_id."
+    },
+    {
+      "id": "errors.problemScope",
+      "operation": "skills.list",
+      "method": "GET",
+      "path": "/api/v1/skills",
+      "response": {
+        "status": 403,
+        "headers": {
+          "Content-Type": "application/problem+json",
+          "X-Request-ID": "fixture-request"
+        },
+        "body": {
+          "type": "about:blank",
+          "title": "scope_not_granted",
+          "status": 403,
+          "detail": "",
+          "instance": "urn:request:fixture-request",
+          "code": "scope_not_granted",
+          "action": "contact_admin",
+          "request_id": "fixture-request",
+          "params": {
+            "required_scope": "skills:run"
+          }
+        }
+      }
+    },
+    {
+      "id": "errors.nativeCooldown",
+      "operation": "chat.create",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "request": {
+        "message": "Привет"
+      },
+      "response": {
+        "status": 503,
+        "headers": {
+          "Content-Type": "application/json",
+          "Retry-After": "60",
+          "X-Request-ID": "fixture-request"
+        },
+        "body": {
+          "error": {
+            "code": "platform_cooldown",
+            "message": "Платформа обновляется."
+          }
+        }
+      }
+    },
+    {
+      "id": "errors.openaiScope",
+      "operation": "openai.chatCompletions",
+      "method": "POST",
+      "path": "/api/openai/v1/chat/completions",
+      "request": {
+        "model": "iskra-llm",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Привет"
+          }
+        ]
+      },
+      "response": {
+        "status": 403,
+        "headers": {
+          "Content-Type": "application/json",
+          "X-Request-ID": "fixture-request"
+        },
+        "body": {
+          "error": {
+            "message": "the API key does not have the \"llm:raw\" scope",
+            "type": "invalid_request_error",
+            "code": "scope_not_granted"
+          }
+        }
+      }
+    },
+    {
+      "id": "errors.proxyHTML",
+      "operation": "runs.get",
+      "method": "GET",
+      "path": "/api/v1/runs/22222222-2222-4222-8222-222222222222",
+      "response": {
+        "status": 502,
+        "headers": {
+          "Content-Type": "text/html",
+          "Retry-After": "5"
+        },
+        "body": "<html><body>Bad Gateway</body></html>"
+      },
+      "notes": "Ошибка промежуточного прокси, а не DTO API; сохраняйте HTTP status и ограниченный текст."
+    },
+    {
+      "id": "openai.streamError",
+      "operation": "openai.chatCompletions",
+      "method": "POST",
+      "path": "/api/openai/v1/chat/completions",
+      "request": {
+        "model": "iskra",
+        "stream": true,
+        "messages": [
+          {
+            "role": "user",
+            "content": "Привет"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/event-stream"
+        },
+        "body": "data: {\"id\":\"chatcmpl-fixture\",\"object\":\"chat.completion.chunk\",\"created\":1789387200,\"model\":\"iskra\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}\n\ndata: {\"error\":{\"message\":\"upstream unavailable\",\"type\":\"api_error\",\"code\":\"internal\"}}\n\ndata: [DONE]\n\n"
+      },
+      "expect": {
+        "error_code": "internal",
+        "http_status": 200
+      },
+      "notes": "Ошибка после отправки HTTP 200 остаётся ошибкой, даже если затем приходит [DONE]."
+    },
+    {
+      "id": "memory.nextPage",
+      "operation": "memory.browse",
+      "method": "GET",
+      "path": "/api/v1/memory/browse",
+      "query": {
+        "sort": "name",
+        "direction": "asc",
+        "limit": "20",
+        "origin": "personal"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "entries": [
+            {
+              "locator": {
+                "directory_id": "33333333-3333-4333-8333-333333333333",
+                "target_kind": "folder"
+              },
+              "name": "Материалы",
+              "path": "",
+              "root_name": "Материалы",
+              "origin": "personal",
+              "category": "personal",
+              "permission": "admin",
+              "tree_revision": 1,
+              "processing_revision": 0,
+              "created_at": "2026-09-14T12:00:00Z",
+              "updated_at": "2026-09-14T12:00:00Z"
+            }
+          ],
+          "complete": false,
+          "materialization_file_limit": 100,
+          "next_cursor": "fixture-cursor"
+        }
+      },
+      "notes": "Cursor непрозрачен; продолжение использует те же фильтры."
+    },
+    {
+      "id": "apps.publicationProbeFailed",
+      "operation": "apps.get",
+      "method": "GET",
+      "path": "/api/v1/apps/88888888-8888-4888-8888-888888888888",
+      "query": {
+        "version": "1.1.0"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": "88888888-8888-4888-8888-888888888888",
+          "slug": "example-app",
+          "title": "Пример приложения",
+          "access": "private",
+          "status": "active",
+          "current_version": "1.0.0",
+          "publication": {
+            "version": "1.1.0",
+            "state": "pending",
+            "activate_on_ready": true,
+            "probe_error": "Проверка запуска не пройдена."
+          }
+        }
+      },
+      "notes": "Отклонённая probe остаётся pending с непустым probe_error; отдельного GET state=failed нет."
+    }
+  ]
+}

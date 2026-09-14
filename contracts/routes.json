@@ -1,0 +1,550 @@
+{
+  "schema_version": 1,
+  "snapshot_date": "2026-09-14",
+  "support": "dev snapshot; availability depends on the installed release and enabled API surfaces",
+  "operations": [
+    {
+      "id": "chat.create",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "scopes": [
+        "chat:run"
+      ],
+      "description": "Выполнить синхронный ход.",
+      "sdk_node": "chat.create",
+      "sdk_python": "chat.create",
+      "conditional_scopes": [
+        {
+          "scopes": [
+            "memory:read"
+          ],
+          "when": "Разговор, история или результат связаны с постоянной Памятью."
+        },
+        {
+          "scopes": [
+            "memory:write"
+          ],
+          "when": "У разговора выбран постоянный workspace или сохранены write-подключения, независимо от фактических действий хода."
+        },
+        {
+          "scopes": [
+            "skills:run"
+          ],
+          "when": "Указан ручной набор iskra_exec.skills."
+        },
+        {
+          "scopes": [
+            "files:write"
+          ],
+          "when": "Запрос содержит вложения."
+        }
+      ],
+      "request_encoding": "json"
+    },
+    {
+      "id": "chat.delete",
+      "method": "DELETE",
+      "path": "/api/v1/chat/{conversation_id}",
+      "scopes": [
+        "chat:run"
+      ],
+      "description": "Удалить эфемерный разговор.",
+      "sdk_node": "chat.delete",
+      "sdk_python": "chat.delete",
+      "response_encoding": "empty"
+    },
+    {
+      "id": "files.upload",
+      "method": "POST",
+      "path": "/api/v1/chat/files",
+      "scopes": [
+        "files:write"
+      ],
+      "description": "Загрузить файлы и получить ID их версий для одного следующего хода этого разговора.",
+      "sdk_node": "files.upload",
+      "sdk_python": "files.upload",
+      "request_encoding": "multipart",
+      "conditional_scopes": [
+        {
+          "scopes": [
+            "memory:read"
+          ],
+          "when": "Разговор связан или ранее был связан с постоянной Памятью."
+        },
+        {
+          "scopes": [
+            "memory:write"
+          ],
+          "when": "У разговора выбран постоянный workspace."
+        }
+      ]
+    },
+    {
+      "id": "files.download",
+      "method": "GET",
+      "path": "/api/v1/chat/{conversation_id}/files/{path...}",
+      "scopes": [
+        "files:read"
+      ],
+      "description": "Скачать артефакт разговора; path состоит из отдельных сегментов.",
+      "sdk_node": "files.download",
+      "sdk_python": "files.download",
+      "response_encoding": "bytes",
+      "conditional_scopes": [
+        {
+          "scopes": [
+            "memory:read"
+          ],
+          "when": "Артефакт относится к разговору с постоянной Памятью."
+        }
+      ]
+    },
+    {
+      "id": "runs.create",
+      "method": "POST",
+      "path": "/api/v1/runs",
+      "scopes": [
+        "chat:run"
+      ],
+      "description": "Создать асинхронный прогон; Idempotency-Key повторно возвращает прежний run_id.",
+      "sdk_node": "runs.create",
+      "sdk_python": "runs.create",
+      "conditional_scopes": [
+        {
+          "scopes": [
+            "memory:read"
+          ],
+          "when": "Разговор, история или результат связаны с постоянной Памятью."
+        },
+        {
+          "scopes": [
+            "memory:write"
+          ],
+          "when": "У разговора выбран постоянный workspace или сохранены write-подключения, независимо от фактических действий хода."
+        },
+        {
+          "scopes": [
+            "skills:run"
+          ],
+          "when": "Указан ручной набор iskra_exec.skills."
+        },
+        {
+          "scopes": [
+            "files:write"
+          ],
+          "when": "Запрос содержит ссылки files[].id."
+        }
+      ],
+      "request_encoding": "json"
+    },
+    {
+      "id": "runs.get",
+      "method": "GET",
+      "path": "/api/v1/runs/{run_id}",
+      "scopes": [
+        "chat:run"
+      ],
+      "description": "Прочитать статус, результат и окно событий; следующий курсор — next_after.",
+      "sdk_node": "runs.get",
+      "sdk_python": "runs.get",
+      "query": [
+        "after"
+      ],
+      "conditional_scopes": [
+        {
+          "scopes": [
+            "memory:read"
+          ],
+          "when": "Прогон требует чтения постоянной Памяти."
+        }
+      ]
+    },
+    {
+      "id": "runs.cancel",
+      "method": "DELETE",
+      "path": "/api/v1/runs/{run_id}",
+      "scopes": [
+        "chat:run"
+      ],
+      "description": "Отменить прогон; успешный ответ 200 содержит run_id, conversation_id и status.",
+      "sdk_node": "runs.cancel",
+      "sdk_python": "runs.cancel"
+    },
+    {
+      "id": "runs.events",
+      "method": "GET",
+      "path": "/api/v1/runs/{run_id}/events",
+      "scopes": [
+        "chat:run"
+      ],
+      "description": "Поток прогресса SSE; Accept: text/event-stream; возобновление after=последний id+1.",
+      "sdk_node": "runs.events",
+      "sdk_python": "runs.events",
+      "query": [
+        "after"
+      ],
+      "response_encoding": "sse",
+      "conditional_scopes": [
+        {
+          "scopes": [
+            "memory:read"
+          ],
+          "when": "Прогон требует чтения постоянной Памяти."
+        }
+      ]
+    },
+    {
+      "id": "skills.list",
+      "method": "GET",
+      "path": "/api/v1/skills",
+      "scopes": [
+        "skills:run"
+      ],
+      "description": "Каталог bundle навыков с доступностью, setup_state и mandatory.",
+      "sdk_node": "skills.list",
+      "sdk_python": "skills.list"
+    },
+    {
+      "id": "specialists.list",
+      "method": "GET",
+      "path": "/api/v1/specialists",
+      "scopes": [
+        "chat:run"
+      ],
+      "description": "Каталог специалистов для iskra_exec.",
+      "sdk_node": "specialists.list",
+      "sdk_python": "specialists.list"
+    },
+    {
+      "id": "execPlan.defaults",
+      "method": "GET",
+      "path": "/api/v1/exec-plan/defaults",
+      "scopes": [
+        "chat:run"
+      ],
+      "description": "Превью плана без разговора: plan, pins, version=0 и options; не полный каталог моделей/навыков.",
+      "sdk_node": "execPlan.defaults",
+      "sdk_python": "exec_plan.defaults"
+    },
+    {
+      "id": "conversations.create",
+      "method": "POST",
+      "path": "/api/v1/conversations",
+      "scopes": [
+        "chat:run"
+      ],
+      "description": "Создать разговор без сообщения и LLM-вызова.",
+      "sdk_node": "conversations.create",
+      "sdk_python": "conversations.create",
+      "request_encoding": "json",
+      "conditional_scopes": [
+        {
+          "scopes": [
+            "memory:read",
+            "memory:write"
+          ],
+          "when": "Указан workspace_directory_id или memory_refs с access_mode=write."
+        },
+        {
+          "scopes": [
+            "memory:read"
+          ],
+          "when": "Указаны memory_refs с access_mode=read."
+        }
+      ]
+    },
+    {
+      "id": "conversations.context",
+      "method": "GET",
+      "path": "/api/v1/chat/{conversation_id}/context",
+      "scopes": [
+        "chat:run",
+        "memory:read"
+      ],
+      "description": "Прочитать workspace и memory references.",
+      "sdk_node": "conversations.context",
+      "sdk_python": "conversations.context"
+    },
+    {
+      "id": "conversations.setWorkspace",
+      "method": "PUT",
+      "path": "/api/v1/chat/{conversation_id}/workspace",
+      "scopes": [
+        "chat:run",
+        "memory:read",
+        "memory:write"
+      ],
+      "description": "Выбрать личную рабочую папку до первого сообщения/файла.",
+      "sdk_node": "conversations.setWorkspace",
+      "sdk_python": "conversations.set_workspace",
+      "request_encoding": "json"
+    },
+    {
+      "id": "conversations.clearWorkspace",
+      "method": "DELETE",
+      "path": "/api/v1/chat/{conversation_id}/workspace",
+      "scopes": [
+        "chat:run",
+        "memory:read",
+        "memory:write"
+      ],
+      "description": "Снять выбранную рабочую папку пустого разговора; вернуть снапшот 200.",
+      "sdk_node": "conversations.clearWorkspace",
+      "sdk_python": "conversations.clear_workspace"
+    },
+    {
+      "id": "conversations.addMemoryRef",
+      "method": "POST",
+      "path": "/api/v1/chat/{conversation_id}/memory-refs",
+      "scopes": [
+        "chat:run",
+        "memory:read"
+      ],
+      "description": "Подключить folder locator или collection_id.",
+      "sdk_node": "conversations.addMemoryRef",
+      "sdk_python": "conversations.add_memory_ref",
+      "request_encoding": "json",
+      "conditional_scopes": [
+        {
+          "scopes": [
+            "memory:write"
+          ],
+          "when": "access_mode=write."
+        }
+      ]
+    },
+    {
+      "id": "conversations.updateMemoryRef",
+      "method": "PATCH",
+      "path": "/api/v1/chat/{conversation_id}/memory-refs/{ref_id}",
+      "scopes": [
+        "chat:run",
+        "memory:read"
+      ],
+      "description": "Изменить access_mode подключения.",
+      "sdk_node": "conversations.updateMemoryRef",
+      "sdk_python": "conversations.update_memory_ref",
+      "request_encoding": "json",
+      "conditional_scopes": [
+        {
+          "scopes": [
+            "memory:write"
+          ],
+          "when": "Новый access_mode=write."
+        }
+      ]
+    },
+    {
+      "id": "conversations.deleteMemoryRef",
+      "method": "DELETE",
+      "path": "/api/v1/chat/{conversation_id}/memory-refs/{ref_id}",
+      "scopes": [
+        "chat:run",
+        "memory:read"
+      ],
+      "description": "Удалить подключение, включая write, без удаления самих материалов.",
+      "sdk_node": "conversations.deleteMemoryRef",
+      "sdk_python": "conversations.delete_memory_ref",
+      "response_encoding": "empty"
+    },
+    {
+      "id": "memory.browse",
+      "method": "GET",
+      "path": "/api/v1/memory/browse",
+      "scopes": [
+        "memory:read"
+      ],
+      "description": "Корни, содержимое папки или глобальный поиск имени/пути.",
+      "sdk_node": "memory.browse",
+      "sdk_python": "memory.browse",
+      "query": [
+        "directory_id",
+        "folder_id",
+        "q",
+        "sort",
+        "direction",
+        "cursor",
+        "limit",
+        "origin",
+        "target_kind",
+        "candidates"
+      ]
+    },
+    {
+      "id": "memory.collections",
+      "method": "GET",
+      "path": "/api/v1/memory/collections",
+      "scopes": [
+        "memory:read"
+      ],
+      "description": "Прочитать свои коллекции.",
+      "sdk_node": "memory.collections",
+      "sdk_python": "memory.collections"
+    },
+    {
+      "id": "memory.collectionMembers",
+      "method": "GET",
+      "path": "/api/v1/memory/collections/{collection_id}/members",
+      "scopes": [
+        "memory:read"
+      ],
+      "description": "Прочитать состав своей коллекции.",
+      "sdk_node": "memory.collectionMembers",
+      "sdk_python": "memory.collection_members"
+    },
+    {
+      "id": "memory.createRoot",
+      "method": "POST",
+      "path": "/api/v1/memory/resources/roots",
+      "scopes": [
+        "memory:read",
+        "memory:write"
+      ],
+      "description": "Создать постоянный личный корень.",
+      "sdk_node": "memory.createRoot",
+      "sdk_python": "memory.create_root",
+      "request_encoding": "json"
+    },
+    {
+      "id": "memory.createFolder",
+      "method": "POST",
+      "path": "/api/v1/memory/resources/folders",
+      "scopes": [
+        "memory:read",
+        "memory:write"
+      ],
+      "description": "Создать подпапку в постоянном корне.",
+      "sdk_node": "memory.createFolder",
+      "sdk_python": "memory.create_folder",
+      "request_encoding": "json"
+    },
+    {
+      "id": "memory.upload",
+      "method": "POST",
+      "path": "/api/v1/memory/resources/files",
+      "scopes": [
+        "memory:read",
+        "memory:write"
+      ],
+      "description": "Загрузить постоянный файл с conflict_policy=create или rename.",
+      "sdk_node": "memory.upload",
+      "sdk_python": "memory.upload",
+      "request_encoding": "multipart"
+    },
+    {
+      "id": "memory.download",
+      "method": "GET",
+      "path": "/api/v1/memory/resources/files/{file_id}/content",
+      "scopes": [
+        "memory:read"
+      ],
+      "description": "Скачать постоянный файл по file ID и directory_id.",
+      "sdk_node": "memory.download",
+      "sdk_python": "memory.download",
+      "query": [
+        "directory_id",
+        "download",
+        "format",
+        "asset"
+      ],
+      "response_encoding": "bytes"
+    },
+    {
+      "id": "apps.create",
+      "method": "POST",
+      "path": "/api/v1/apps",
+      "scopes": [
+        "apps:publish"
+      ],
+      "description": "Создать приложение из multipart bundle; title необязателен.",
+      "sdk_node": "apps.create",
+      "sdk_python": "apps.create",
+      "request_encoding": "multipart",
+      "query": [
+        "activate"
+      ],
+      "delegation": false
+    },
+    {
+      "id": "apps.publishVersion",
+      "method": "POST",
+      "path": "/api/v1/apps/{app_id}/versions",
+      "scopes": [
+        "apps:publish"
+      ],
+      "description": "Опубликовать новую неизменяемую версию своего приложения.",
+      "sdk_node": "apps.publishVersion",
+      "sdk_python": "apps.publish_version",
+      "request_encoding": "multipart",
+      "query": [
+        "activate"
+      ],
+      "delegation": false
+    },
+    {
+      "id": "apps.get",
+      "method": "GET",
+      "path": "/api/v1/apps/{app_id}",
+      "scopes": [
+        "apps:publish"
+      ],
+      "description": "Прочитать состояние принятой публикации; version обязателен.",
+      "sdk_node": "apps.get",
+      "sdk_python": "apps.get",
+      "query": [
+        "version"
+      ],
+      "delegation": false
+    },
+    {
+      "id": "openai.models",
+      "method": "GET",
+      "path": "/api/openai/v1/models",
+      "scopes": [
+        "chat:run"
+      ],
+      "description": "Список виртуальных моделей доступного OpenAI-фасада.",
+      "sdk_node": "openai.models",
+      "sdk_python": "openai.models"
+    },
+    {
+      "id": "openai.chatCompletions",
+      "method": "POST",
+      "path": "/api/openai/v1/chat/completions",
+      "scopes": [
+        "chat:run"
+      ],
+      "description": "OpenAI-compatible ответ или SSE; режим определяется model.",
+      "sdk_node": "openai.chatCompletions",
+      "sdk_python": "openai.chat_completions",
+      "request_encoding": "json",
+      "response_encoding": "json_or_sse",
+      "conditional_scopes": [
+        {
+          "scopes": [
+            "llm:raw"
+          ],
+          "when": "model — iskra-llm или один из iskra-llm-*."
+        },
+        {
+          "scopes": [
+            "memory:read"
+          ],
+          "when": "В агентском режиме: Разговор, история или результат связаны с постоянной Памятью."
+        },
+        {
+          "scopes": [
+            "memory:write"
+          ],
+          "when": "В агентском режиме: У разговора выбран постоянный workspace или сохранены write-подключения, независимо от фактических действий хода."
+        },
+        {
+          "scopes": [
+            "skills:run"
+          ],
+          "when": "В агентском режиме: Указан ручной набор iskra_exec.skills."
+        }
+      ]
+    }
+  ]
+}
